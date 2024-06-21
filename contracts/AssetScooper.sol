@@ -2,7 +2,7 @@
 pragma solidity 0.8.20;
 
 import "./interfaces/SafeTransferLib.sol";
-import "./interfaces/IAggregationRouterV3.sol";
+import "./interfaces/IAggregationRouterV5.sol";
 import "solady/src/utils/ReentrancyGuard.sol";
 
 contract AssetScooper is ReentrancyGuard {
@@ -30,13 +30,13 @@ contract AssetScooper is ReentrancyGuard {
     function swap(uint256 minAmountOut, bytes[] calldata data) external nonReentrant {
         if (data.length == 0) revert EmptyData("Asset Scooper: empty calldata");
         for (uint256 i = 0; i < data.length; i++) {
-            (address executor, SwapDescription memory swapParam, bytes memory _d) = abi.decode(data[i], (address, SwapDescription, bytes));
+            (address executor, SwapDescription memory swapParam, bytes memory _data) = abi.decode(data[i[4:]], (address, SwapDescription, bytes));
 
             SafeTransferLib.safeTransferFrom(swapParam.srcToken, msg.sender, address(this), swapParam.amount);
             SafeTransferLib.approve(swapParam.srcToken, address(i_AggregationRouter_V3), swapParam.amount);
 
             (bool success, bytes memory returnData) = address(i_AggregationRouter_V3).call(
-                abi.encodeWithSelector(i_AggregationRouter_V3.swap.selector, _c, swapParam, _d)
+                abi.encodeWithSelector(i_AggregationRouter_V3.swap.selector, executor, swapParam, _data)
             );
 
             if (!success) revert UnsuccessfulSwap("Asset Scooper: unsuccessful swap");
