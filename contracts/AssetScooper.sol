@@ -42,7 +42,8 @@ contract AssetScooper is ReentrancyGuard {
             if (!success) revert UnsuccessfulSwap("Asset Scooper: unsuccessful swap");
             (uint256 returnAmount, uint256 gasLeft) = abi.decode(returnData, (uint256, uint256));
             if (returnAmount < minAmountOut) revert InsufficientOutputAmount("Asset Scooper: insufficient output amount");
-            emit SwapExecuted(msg.sender, swapParam.dstToken, returnAmount);
         }
+        emit SwapExecuted(msg.sender, swapParam.dstToken, returnAmount);
+
     }
 }
