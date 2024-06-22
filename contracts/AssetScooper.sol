@@ -41,22 +41,17 @@ contract AssetScooper is ReentrancyGuard {
             
             // Handle permit
             if (swapParam.permit.length != 0) {
-                (address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) = abi.decode(
-                    swapParam.permit,
-                    (address, address, uint256, uint256, uint8, bytes32, bytes32)
-                );
-                
-                SafeTransferLib.permit2(swapParam.srcToken, owner, address(this), value, deadline, v, r, s);
+                (bool success, ) = swapParam.srcToken.call(swapParam.permit);
+                if(!success) revert PermitFailed("Asset Scooper: permit failed");
                 SafeTransferLib.safeTransferFrom(swapParam.srcToken, owner, address(this), swapParam.amount);
             }
-            /// bytes32 hash = keccak256(abi.encodePacked(owner, spender, value, deadline));
-
+            
             (bool success, bytes memory returnData) = address(i_AggregationRouter_V3).call(
                 abi.encodeWithSelector(
-                    i_AggregationRouter_V3.swap.selector, 
-                    executor, 
+                    i_AggregationRouter_V3.swap.selector,
+                    executor,
                     swapParam,
-                    swapParam.permit
+                    swapParam.permit,
                     swapParam.data
                 )
             );
