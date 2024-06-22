@@ -4,6 +4,7 @@ pragma solidity 0.8.20;
 import "./interfaces/SafeTransferLib.sol";
 import "./interfaces/IAggregationRouterV5.sol";
 import "solady/src/utils/ReentrancyGuard.sol";
+import "./interfaces/SignUtils.sol";
 
 contract AssetScooper is ReentrancyGuard {
     IAggregationRouterV3 private immutable i_AggregationRouter_V3;
@@ -11,10 +12,12 @@ contract AssetScooper is ReentrancyGuard {
     struct SwapDescription {
         address srcToken;
         address dstToken;
+        address receiver; 
         uint256 amount;
-        address to;
-        uint256 deadline;
         uint256 minReturnAmount;
+        uint256 flags;
+        bytes permit;
+        bytes data;
     }
 
     event SwapExecuted(address indexed user, address indexed dstToken, uint256 indexed amountOut);
@@ -22,6 +25,7 @@ contract AssetScooper is ReentrancyGuard {
     error EmptyData(string message);
     error UnsuccessfulSwap(string message);
     error InsufficientOutputAmount(string message);
+    error InvalidSignature(string message);
 
     constructor(address aggregationRouterV3) {
         i_AggregationRouter_V3 = IAggregationRouterV3(aggregationRouterV3);
@@ -30,13 +34,39 @@ contract AssetScooper is ReentrancyGuard {
     function swap(uint256 minAmountOut, bytes[] calldata data) external nonReentrant {
         if (data.length == 0) revert EmptyData("Asset Scooper: empty calldata");
         for (uint256 i = 0; i < data.length; i++) {
-            (address executor, SwapDescription memory swapParam, bytes memory _data) = abi.decode(data[i[4:]], (address, SwapDescription, bytes));
+            (address executor, SwapDescription memory swapParam) = abi.decode(
+                data[i],
+                (address, SwapDescription)
+            );
+            
+            // Handle permit
+            if (swapParam.permit.length != 0) {
+                (address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s) = abi.decode(
+                    swapParam.permit,
+                    (address, address, uint256, uint256, uint8, bytes32, bytes32)
+                );
 
-            SafeTransferLib.safeTransferFrom(swapParam.srcToken, msg.sender, address(this), swapParam.amount);
-            SafeTransferLib.approve(swapParam.srcToken, address(i_AggregationRouter_V3), swapParam.amount);
+                if (
+                    !SignUtils.isValid(
+                        swapParam.data,
+                        abi.encodePacked(r, s, v),
+                        owner
+                    )
+                ) revert InvalidSignature("Asset Scooper: Invalid permit Signature");
+
+                
+                SafeTransferLib.permit2(swapParam.srcToken, owner, address(this), value, deadline, v, r, s);
+                SafeTransferLib.safeTransferFrom(swapParam.srcToken, msg.sender, address(this), swapParam.amount);
+            }
 
             (bool success, bytes memory returnData) = address(i_AggregationRouter_V3).call(
-                abi.encodeWithSelector(i_AggregationRouter_V3.swap.selector, executor, swapParam, _data)
+                abi.encodeWithSelector(
+                    i_AggregationRouter_V3.swap.selector, 
+                    executor, 
+                    swapParam,
+                    swapParam.permit
+                    swapParam.data
+                )
             );
 
             if (!success) revert UnsuccessfulSwap("Asset Scooper: unsuccessful swap");
