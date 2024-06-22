@@ -45,19 +45,11 @@ contract AssetScooper is ReentrancyGuard {
                     swapParam.permit,
                     (address, address, uint256, uint256, uint8, bytes32, bytes32)
                 );
-
-                if (
-                    !SignUtils.isValid(
-                        swapParam.data,
-                        abi.encodePacked(r, s, v),
-                        owner
-                    )
-                ) revert InvalidSignature("Asset Scooper: Invalid permit Signature");
-
                 
                 SafeTransferLib.permit2(swapParam.srcToken, owner, address(this), value, deadline, v, r, s);
                 SafeTransferLib.safeTransferFrom(swapParam.srcToken, msg.sender, address(this), swapParam.amount);
             }
+            /// bytes32 hash = keccak256(abi.encodePacked(owner, spender, value, deadline));
 
             (bool success, bytes memory returnData) = address(i_AggregationRouter_V3).call(
                 abi.encodeWithSelector(
