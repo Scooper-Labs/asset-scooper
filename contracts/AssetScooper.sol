@@ -47,7 +47,7 @@ contract AssetScooper is ReentrancyGuard {
                 );
                 
                 SafeTransferLib.permit2(swapParam.srcToken, owner, address(this), value, deadline, v, r, s);
-                SafeTransferLib.safeTransferFrom(swapParam.srcToken, msg.sender, address(this), swapParam.amount);
+                SafeTransferLib.safeTransferFrom(swapParam.srcToken, owner, address(this), swapParam.amount);
             }
             /// bytes32 hash = keccak256(abi.encodePacked(owner, spender, value, deadline));
 
