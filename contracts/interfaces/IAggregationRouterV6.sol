@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity 0.8.20;
 
-interface IAggregationRouterV5 {
+interface IAggregationRouterV6 {
     function swap(
-        address caller,
         IAggregationExecutor executor,
         SwapDescription calldata desc,
+        bytes calldata permit,
         bytes calldata data
-    ) external payable returns (uint256 returnAmount, uint256 gasLeft);
+) external payable returns (uint256 returnAmount, uint256 spentAmount)
 
     struct SwapDescription {
         IERC20 srcToken;
