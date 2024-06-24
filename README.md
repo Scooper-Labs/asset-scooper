@@ -9,7 +9,7 @@
 ## Team Information
 
 - **Paul Elisha**: Smart Contract Developer, Documentarian
-- **Flora Osutayi**: UI/UX Designer
+- **Destiny Spoke**: UI/UX Designer
 - **Blessing Samuel**: Frontend Developer, Project Manager
 - **Ibrahim Sunday Ijai**: Frontend Developer
 
