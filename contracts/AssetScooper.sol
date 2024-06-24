@@ -75,6 +75,7 @@ contract AssetScooper is ReentrancyGuard {
                 }
             }
         }
+    }
 
     receive() external payable {}
 }
