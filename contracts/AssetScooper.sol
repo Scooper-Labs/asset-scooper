@@ -22,10 +22,9 @@ contract AssetScooper is ReentrancyGuard {
 
     event SwapExecuted(address indexed user, address indexed dstToken, uint256 indexed amountOut);
 
-    error EmptyData(string message);
     error UnsuccessfulSwap(string message);
     error InsufficientOutputAmount(string message);
-    error InvalidSignature(string message);
+    error InvalidSelector()
 
     constructor(address aggregationRouterV6) {
         i_AggregationRouter_V6 = IAggregationRouterV6(aggregationRouterV6);
@@ -38,6 +37,8 @@ contract AssetScooper is ReentrancyGuard {
                 data[i],
                 (address, SwapDescription)
             );
+
+            if (selector != i_AggregationRouter_V6.swap.selector) revert InvalidSelector();
 
             SafeTransferLib.safeTransferFrom(swapParam.srcToken, swapParam.receiver, address(this), swapParam.amount);
             SafeTransferLib.safeApprove(swapParam.srcToken, address(i_AggregationRouter_V6), swapParam.amount);
