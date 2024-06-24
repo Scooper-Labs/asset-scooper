@@ -4,7 +4,6 @@ pragma solidity 0.8.20;
 import "./interfaces/SafeTransferLib.sol";
 import "./interfaces/IAggregationRouterV6.sol";
 import "solady/src/utils/ReentrancyGuard.sol";
-import "./interfaces/SignUtils.sol";
 
 contract AssetScooper is ReentrancyGuard {
     IAggregationRouterV6 private immutable i_AggregationRouter_V6;
