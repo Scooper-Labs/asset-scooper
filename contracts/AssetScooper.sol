@@ -6,6 +6,7 @@ import "./interfaces/IAggregationRouterV6.sol";
 import "solady/src/utils/ReentrancyGuard.sol";
 
 contract AssetScooper is ReentrancyGuard {
+
     IAggregationRouterV6 public i_AggregationRouter_V6;
 
     struct SwapDescription {
@@ -73,7 +74,7 @@ contract AssetScooper is ReentrancyGuard {
 
                     mstore(freePtr, 0x095ea7b3)
 
-                    // advance memory to the location after the next
+                    // advance memory to the location from the
                     // first bytes4 to store the parameters
                     mstore(add(freePtr, 0x04), 0x111111125421cA6dc452d289314280a0f8842A65)
 
