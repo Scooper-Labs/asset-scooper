@@ -5,7 +5,6 @@ interface IAggregationRouterV6 {
     function swap(
         address executor,
         SwapDescription calldata desc,
-        bytes calldata permit,
         bytes calldata data
 ) external payable returns (uint256 returnAmount, uint256 spentAmount);
 

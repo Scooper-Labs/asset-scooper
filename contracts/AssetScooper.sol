@@ -33,9 +33,9 @@ contract AssetScooper is ReentrancyGuard {
     function swap(uint256 minAmountOut, bytes[] calldata data) external nonReentrant {
         if (data.length == 0) revert EmptyData("Asset Scooper: empty calldata");
         for (uint256 i = 0; i < data.length; i++) {
-            (/*address executor*/, SwapDescription memory swapParam) = abi.decode(
+            (/*address selector*/, /*address executor*/, SwapDescription memory swapParam, /*bytes data*/) = abi.decode(
                 data[i],
-                (address, SwapDescription)
+                (address, address, SwapDescription, bytes)
             );
 
             SafeTransferLib.safeTransferFrom(swapParam.srcToken, swapParam.receiver, address(this), swapParam.amount);
@@ -67,10 +67,10 @@ contract AssetScooper is ReentrancyGuard {
                     let amount := mload(add(calldataElement, 0x20))
 
                     // Perform the safeApprove call
-                    
+
                     let freePtr := mload(0x40)
 
-                    // approve sig
+                    // approve sig := 0x095ea7b3
 
                     mstore(freePtr, 0x095ea7b3) 
                     mstore(add(freePtr, 0x04), address())
