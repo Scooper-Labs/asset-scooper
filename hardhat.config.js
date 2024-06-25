@@ -5,7 +5,7 @@ require("hardhat-deploy");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 
-const { KLAYTN_BAOBAB_RPC, PRIVATE_KEY, ETHERSCAN_APIKEY } = process.env || ""
+const { BASE_RPC_URL, PRIVATE_KEY, ETHERSCAN_APIKEY } = process.env || ""
 
 module.exports = {
     solidity: {
@@ -16,26 +16,16 @@ module.exports = {
     },
     defaultNetwork: "hardhat",
     networks: {
-        klaytn: {
-            url: KLAYTN_BAOBAB_RPC || "",
-            gasPrice: 250000000000,
+        base: {
+            url: BASE_RPC_URL || "",
             accounts: [PRIVATE_KEY],
-            chainId: 1001,
+            gasPrice: 1000000000,
+            chainId: 8453,
             blockConfirmations: 6
         }
     },
     etherscan: {
         apikey: ETHERSCAN_APIKEY,
-        customChains: [
-            {
-                network: "klaytn",
-                chainId: 1001,
-                urls: {
-                    apiURL: "https://api-baobab.klaytnscope.com/api",
-                    browserURL: "https://baobab.klaytnscope.com",
-                },
-            },
-        ]
     },
     sourcify: {
         enabled: true,

@@ -8,8 +8,8 @@ const deployAssetScooper = async ({ getNamedAccounts, deployments }) => {
     const { deployer } = await getNamedAccounts();
     const chainId = network.config.chainId;
 
-    const ROUTER = "";
-    let args = [ROUTER];
+    const ROUTER_ADDRESS = "0x111111125421cA6dc452d289314280a0f8842A65";
+    let args = [ROUTER_ADDRESS];
 
     const assetScooper = await deploy("AssetScooper", {
         from: deployer,
@@ -22,7 +22,7 @@ const deployAssetScooper = async ({ getNamedAccounts, deployments }) => {
     log("...........................................................")
     log(assetScooper.address);
 
-    if (!developmentChains.includes(network.name) && chainId == 1001 && ETHERSCAN_APIKEY) {
+    if (!developmentChains.includes(network.name) && chainId == 8453 && ETHERSCAN_APIKEY) {
         await verify(assetScooper.address, args);
     }
 }
