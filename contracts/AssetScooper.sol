@@ -6,7 +6,7 @@ import "./interfaces/IAggregationRouterV6.sol";
 import "solady/src/utils/ReentrancyGuard.sol";
 
 contract AssetScooper is ReentrancyGuard {
-    IAggregationRouterV6 private immutable i_AggregationRouter_V6;
+    IAggregationRouterV6 public i_AggregationRouter_V6;
 
     struct SwapDescription {
         address srcToken;
@@ -33,13 +33,12 @@ contract AssetScooper is ReentrancyGuard {
     function swap(uint256 minAmountOut, bytes[] calldata data) external nonReentrant {
         if (data.length == 0) revert EmptyData("Asset Scooper: empty calldata");
         for (uint256 i = 0; i < data.length; i++) {
-            (/*address selector*/, /*address executor*/, SwapDescription memory swapParam, /*bytes data*/) = abi.decode(
+            (address selector, /*address executor*/, SwapDescription memory swapParam, /*bytes data*/) = abi.decode(
                 data[i],
                 (address, address, SwapDescription, bytes)
             );
 
-            SafeTransferLib.safeTransferFrom(swapParam.srcToken, swapParam.receiver, address(this), swapParam.amount);
-            SafeTransferLib.safeApprove(swapParam.srcToken, address(i_AggregationRouter_V6), swapParam.amount);
+            if (keccak256(abi.encode(selector)) != keccak256(abi.encode(i_AggregationRouter_V6.swap.selector))) revert InvalidSelector();
 
             (bool success, bytes memory returnData) = address(i_AggregationRouter_V6).call(data[i]);
 
@@ -72,10 +71,18 @@ contract AssetScooper is ReentrancyGuard {
 
                     // approve sig := 0x095ea7b3
 
-                    mstore(freePtr, 0x095ea7b3) 
-                    mstore(add(freePtr, 0x04), address())
+                    mstore(freePtr, 0x095ea7b3)
+
+                    // advance memory to the location after the next
+                    // first bytes4 to store the parameters
+                    mstore(add(freePtr, 0x04), 0x111111125421cA6dc452d289314280a0f8842A65)
+
+                    // advance memory to the next 32 bytes to store 
+                    // the amount
                     mstore(add(freePtr, 0x24), amount)
                     
+                    // get parameters between freePtr - 0x44 (68 bytes) 
+                    // for approval call and store return data between 0 - 0 
                     let result := call(gas(), token, 0, freePtr, 0x44, 0, 0)
                     if iszero(result) {
                         revert(0, 0)
