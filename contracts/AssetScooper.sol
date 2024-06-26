@@ -62,33 +62,31 @@ contract AssetScooper is ReentrancyGuard {
                 // add(add(calldataArray, 32), mul(i, 20)) := element
 
                 let calldataElement := mload(add(add(callDataArray, 0x20), mul(i, 0x20)))
-                
-                if iszero(iszero(calldataElement)) {
-                    let token := mload(calldataElement)
-                    let amount := mload(add(calldataElement, 0x20))
 
-                    // Perform the safeApprove call
+                let token := mload(calldataElement)
+                let amount := mload(add(calldataElement, 0x20))
 
-                    let freePtr := mload(0x40)
+                // Perform the safeApprove call
 
-                    // approve sig := 0x095ea7b3
+                let freePtr := mload(0x40)
 
-                    mstore(freePtr, 0x095ea7b3)
+                // approve sig := 0x095ea7b3
 
-                    // advance memory to the location from the
-                    // first bytes4 to store the parameters
-                    mstore(add(freePtr, 0x04), 1INCH_ROUTER)
+                mstore(freePtr, 0x095ea7b3)
 
-                    // advance memory to the next 32 bytes to store 
-                    // the amount
-                    mstore(add(freePtr, 0x24), amount)
+                // advance memory to the location from the
+                // first bytes4 to store the parameters
+                mstore(add(freePtr, 0x04), 1INCH_ROUTER)
+
+                // advance memory to the next 32 bytes to store 
+                // the amount
+                mstore(add(freePtr, 0x24), amount)
                     
-                    // get parameters between freePtr - 0x44 (68 bytes) 
-                    // for approval call and store return data between 0 - 0 
-                    let result := call(gas(), token, 0, freePtr, 0x44, 0, 0)
-                    if iszero(result) {
-                        revert(0, 0)
-                    }
+                // get parameters between freePtr - 0x44 (68 bytes) 
+                // for approval call and store return data between 0 - 0 
+                let result := call(gas(), token, 0, freePtr, 0x44, 0, 0)
+                if iszero(result) {
+                    revert(0, 0)
                 }
             }
         }
