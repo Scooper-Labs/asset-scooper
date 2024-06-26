@@ -55,7 +55,7 @@ contract AssetScooper is ReentrancyGuard {
         if (callDataArray.length == 0) revert EmptyData("Asset Scooper: empty calldata");
 
         for (uint i = 0; i < callDataArray.length; i++) {
-            (address tokenAddress, uint256 amount) = abi.decode(callDataArray[i], (address, uint256));
+            (/*address selector*/, address tokenAddress, uint256 amount) = abi.decode(callDataArray[i], (address, address, uint256));
             
             SafeTransferLib.safeApprove(tokenAddress, ROUTER, amount);
         }
