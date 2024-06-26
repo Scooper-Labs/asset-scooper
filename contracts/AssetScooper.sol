@@ -52,15 +52,15 @@ contract AssetScooper is ReentrancyGuard {
         }
     }
 
-    // function approveAll(bytes[] memory callDataArray) public {
-    //     if (callDataArray.length == 0) revert EmptyData("Asset Scooper: empty calldata");
+    function approveAll(address[] calldata tokenAddresses, uint256[] calldata amounts) public {
+        if (tokenAddresses.length != amounts.length) revert EmptyData("Asset Scooper: empty calldata");
 
-    //     for (uint i = 0; i < callDataArray.length; i++) {
-    //         bytes memory callDataElement = callDataArray[i];
-
-    //         (/*bytes4 selector*/, address tokenAddress, uint256 amount) = abi.decode(callDataElement, (bytes4, address, uint256));
+        for (uint i = 0; i < tokenAddresses.length; i++) {
+            address token = tokenAddresses[i];
+            uint256 amount = amounts[i];
             
-    //         SafeTransferLib.safeApprove(tokenAddress, ROUTER, amount);
-    //     }
-    // }
+            SafeTransferLib.safeApprove(token, ROUTER, amount);
+        }
+    }
+    
 }
