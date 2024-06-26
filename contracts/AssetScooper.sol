@@ -8,6 +8,7 @@ import "solady/src/utils/ReentrancyGuard.sol";
 contract AssetScooper is ReentrancyGuard {
 
     IAggregationRouterV6 public i_AggregationRouter_V6;
+    address constant 1INCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65
 
     struct SwapDescription {
         address srcToken;
@@ -76,7 +77,7 @@ contract AssetScooper is ReentrancyGuard {
 
                     // advance memory to the location from the
                     // first bytes4 to store the parameters
-                    mstore(add(freePtr, 0x04), 0x111111125421cA6dc452d289314280a0f8842A65)
+                    mstore(add(freePtr, 0x04), 1INCH_ROUTER)
 
                     // advance memory to the next 32 bytes to store 
                     // the amount
