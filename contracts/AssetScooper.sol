@@ -8,7 +8,7 @@ import "solady/src/utils/ReentrancyGuard.sol";
 contract AssetScooper is ReentrancyGuard {
 
     IAggregationRouterV6 public i_AggregationRouter_V6;
-    address constant 1INCH_ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65
+    address constant ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
 
     struct SwapDescription {
         address srcToken;
@@ -51,44 +51,13 @@ contract AssetScooper is ReentrancyGuard {
         }
     }
 
-    function approveForAll(bytes[] memory callDataArray) external {
-        assembly {
-            let len := mload(callDataArray)
-            for { let i := 0 } lt(i, len) { i := add(i, 1) } {
+    function approveAll(bytes[] memory callDataArray) public {
+        if (callDataArray.length == 0) revert EmptyData("Asset Scooper: empty calldata");
 
-                // calldataArray := location
-                // add(calldataArray, 32) := element location
-                // mul(i, 32) := offset
-                // add(add(calldataArray, 32), mul(i, 20)) := element
-
-                let calldataElement := mload(add(add(callDataArray, 0x20), mul(i, 0x20)))
-
-                let token := mload(calldataElement)
-                let amount := mload(add(calldataElement, 0x20))
-
-                // Perform the safeApprove call
-
-                let freePtr := mload(0x40)
-
-                // approve sig := 0x095ea7b3
-
-                mstore(freePtr, 0x095ea7b3)
-
-                // advance memory to the location from the
-                // first bytes4 to store the parameters
-                mstore(add(freePtr, 0x04), 1INCH_ROUTER)
-
-                // advance memory to the next 32 bytes to store 
-                // the amount
-                mstore(add(freePtr, 0x24), amount)
-                    
-                // get parameters between freePtr - 0x44 (68 bytes) 
-                // for approval call and store return data between 0 - 0 
-                let result := call(gas(), token, 0, freePtr, 0x44, 0, 0)
-                if iszero(result) {
-                    revert(0, 0)
-                }
-            }
+        for (uint i = 0; i < callDataArray.length; i++) {
+            (address tokenAddress, uint256 amount) = abi.decode(callDataArray[i], (address, uint256));
+            
+            SafeTransferLib.safeApprove(tokenAddress, ROUTER, amount);
         }
     }
 }
