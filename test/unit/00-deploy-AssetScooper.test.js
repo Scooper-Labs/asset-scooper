@@ -8,7 +8,7 @@ const { developmentChains } = require("../../helper-hardhat-config");
 
         let assetScooper;
         let deployer;
-        const args = ["0x111111125421cA6dc452d289314280a0f8842A65"];
+        const args = ["0x11111112542D85B3EF69AE05771c2dCCff4fAa26"];
 
         beforeEach(async () => {
             deployer = (await getNamedAccounts()).deployer;
