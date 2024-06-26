@@ -40,9 +40,6 @@ contract AssetScooper is ReentrancyGuard {
                 (bytes4, address, SwapDescription, bytes)
             );
 
-            SafeTransferLib.safeTransferFrom(swapParam.srcToken, msg.sender, address(this), swapParam.amount);
-            SafeTransferLib.safeApprove(swapParam.srcToken, address(i_AggregationRouter_V6), swapParam.amount);
-
             (bool success, bytes memory returnData) = address(i_AggregationRouter_V6).call(data[i]);
 
             if (!success) revert UnsuccessfulSwap("Asset Scooper: unsuccessful swap");
@@ -62,5 +59,5 @@ contract AssetScooper is ReentrancyGuard {
             SafeTransferLib.safeApprove(token, ROUTER, amount);
         }
     }
-    
+
 }
