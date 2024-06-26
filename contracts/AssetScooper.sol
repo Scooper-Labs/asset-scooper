@@ -8,7 +8,7 @@ import "solady/src/utils/ReentrancyGuard.sol";
 contract AssetScooper is ReentrancyGuard {
 
     IAggregationRouterV6 public i_AggregationRouter_V6;
-    address constant ROUTER = 0x111111125421cA6dc452d289314280a0f8842A65;
+    address constant ROUTER = 0x11111112542D85B3EF69AE05771c2dCCff4fAa26;
 
     struct SwapDescription {
         address srcToken;
