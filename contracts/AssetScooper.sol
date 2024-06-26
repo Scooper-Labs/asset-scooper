@@ -35,12 +35,13 @@ contract AssetScooper is ReentrancyGuard {
     function swap(uint256 minAmountOut, bytes[] calldata data) external nonReentrant {
         if (data.length == 0) revert EmptyData("Asset Scooper: empty calldata");
         for (uint256 i = 0; i < data.length; i++) {
-            (address selector, /*address executor*/, SwapDescription memory swapParam, /*bytes data*/) = abi.decode(
+            (/*bytes4 selector*/, /*address executor*/, SwapDescription memory swapParam, /*bytes data*/) = abi.decode(
                 data[i],
-                (address, address, SwapDescription, bytes)
+                (bytes4, address, SwapDescription, bytes)
             );
 
-            if (keccak256(abi.encode(selector)) != keccak256(abi.encode(i_AggregationRouter_V6.swap.selector))) revert InvalidSelector();
+            SafeTransferLib.safeTransferFrom(swapParam.srcToken, msg.sender, address(this), swapParam.amount);
+            SafeTransferLib.safeApprove(swapParam.srcToken, address(i_AggregationRouter_V6), swapParam.amount);
 
             (bool success, bytes memory returnData) = address(i_AggregationRouter_V6).call(data[i]);
 
@@ -51,13 +52,15 @@ contract AssetScooper is ReentrancyGuard {
         }
     }
 
-    function approveAll(bytes[] memory callDataArray) public {
-        if (callDataArray.length == 0) revert EmptyData("Asset Scooper: empty calldata");
+    // function approveAll(bytes[] memory callDataArray) public {
+    //     if (callDataArray.length == 0) revert EmptyData("Asset Scooper: empty calldata");
 
-        for (uint i = 0; i < callDataArray.length; i++) {
-            (/*address selector*/, address tokenAddress, uint256 amount) = abi.decode(callDataArray[i], (address, address, uint256));
+    //     for (uint i = 0; i < callDataArray.length; i++) {
+    //         bytes memory callDataElement = callDataArray[i];
+
+    //         (/*bytes4 selector*/, address tokenAddress, uint256 amount) = abi.decode(callDataElement, (bytes4, address, uint256));
             
-            SafeTransferLib.safeApprove(tokenAddress, ROUTER, amount);
-        }
-    }
+    //         SafeTransferLib.safeApprove(tokenAddress, ROUTER, amount);
+    //     }
+    // }
 }
